@@ -7,16 +7,11 @@ public class GameLogic implements PlayableLogic {
     private Player firstPlayer;
     private Player secondPlayer;
     private boolean isFirstPlayerTurn = true;
-    private boolean gameFinished = false;
     private final Disc[][] board = new Disc[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
 
 
     public boolean locate_disc(Position a, Disc disc) {
-        if (gameFinished) {
-            System.out.println("Game is finished.");
-            return false;
-        }
         if (a.col() < 0 || a.col() >= BOARD_SIZE || a.row() < 0 || a.row() >= BOARD_SIZE || board[a.row()][a.col()] != null) {
             return false; // Out of bounds
         }
@@ -78,6 +73,11 @@ public class GameLogic implements PlayableLogic {
             if (disc == null) {
                 break;
             }
+            // Stops if the disc is unflippable
+            if (disc instanceof UnflippableDisc) {
+                break;
+            }
+
             // Check if the disc belongs to the current player
             if (disc.getOwner() == (isFirstPlayerTurn ? firstPlayer : secondPlayer)) {
                 // Flip all collected discs
@@ -172,6 +172,13 @@ public class GameLogic implements PlayableLogic {
     }
 
     public boolean isGameFinished() {
+        if(ValidMoves().isEmpty()){
+            if (calculateScore(firstPlayer) > calculateScore(secondPlayer)) {
+                firstPlayer.addWin();
+                System.out.println("Player 1 wins with " + calculateScore(firstPlayer) + " discs! Player 2 had " + calculateScore(secondPlayer) + " discs.");
+            }
+            else secondPlayer.addWin();
+            System.out.println("Player 2 wins with " + calculateScore(secondPlayer) + " discs! Player 1 had " + calculateScore(firstPlayer) + " discs.");        }
         return ValidMoves().isEmpty();
     }
 
@@ -189,7 +196,6 @@ public class GameLogic implements PlayableLogic {
 
         isFirstPlayerTurn = true;
         moveHistory.clear();
-        gameFinished = false;
     }
 
     public void undoLastMove() {
