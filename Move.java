@@ -19,7 +19,7 @@ public class Move {
     public Disc disc() {
         return disc;
     }
-    public List<Position> flippedPositions(){
+    public List<Position> flippedPositions() {
         return flippedPositions;
     }
 
