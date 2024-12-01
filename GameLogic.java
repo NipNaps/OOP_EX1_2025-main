@@ -10,7 +10,6 @@ public class GameLogic implements PlayableLogic {
     private boolean gameFinished = false;
     private final Disc[][] board = new Disc[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
-    private GamePrinter gamePrinter = new GamePrinter();
 
 
     public boolean locate_disc(Position a, Disc disc) {
@@ -27,18 +26,18 @@ public class GameLogic implements PlayableLogic {
             flippedPositions.addAll(flipDiscs(a, direction));
         }
         // if no discs are flipped, the move is invalid
-        if(flippedPositions.isEmpty()) {
+        if (flippedPositions.isEmpty()) {
             System.out.println("Invalid move.");
             return false;
         }
 
         board[a.row()][a.col()] = disc; // Place the disc
-        gamePrinter.printMove(isFirstPlayerTurn ? firstPlayer : secondPlayer, a, flippedPositions.size());
-        gamePrinter.printBoard(board);
-
         moveHistory.add(new Move(a, disc, flippedPositions)); // Save the move to history
-
         isFirstPlayerTurn = !isFirstPlayerTurn; // Switch turn
+        int number = (isFirstPlayerTurn) ? 2 : 1;
+        System.out.println("Player " + number + " placed a " + disc.getType() + " in (" + a.row() + "," + a.col() + ").");
+        System.out.println();
+
         return true;
 
     }
@@ -53,7 +52,6 @@ public class GameLogic implements PlayableLogic {
 
     public List<Position> ValidMoves() {
         List<Position> validMoves = new ArrayList<>();
-        Player currentPlayer = isFirstPlayerTurn ? firstPlayer : secondPlayer;
 
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
@@ -81,10 +79,12 @@ public class GameLogic implements PlayableLogic {
                 break;
             }
             // Check if the disc belongs to the current player
-            if(disc.getOwner() == (isFirstPlayerTurn ? firstPlayer : secondPlayer)) {
+            if (disc.getOwner() == (isFirstPlayerTurn ? firstPlayer : secondPlayer)) {
                 // Flip all collected discs
                 for (Position pos : flipped) {
                     board[pos.row()][pos.col()].setOwner(isFirstPlayerTurn ? firstPlayer : secondPlayer);
+                    int number = (isFirstPlayerTurn) ? 1 : 2;
+                    System.out.println("Player " + number + " flipped the " + disc.getType() + " in (" + pos.row() + "," + pos.col() + ").");
                 }
                 return flipped;
             }
@@ -99,7 +99,7 @@ public class GameLogic implements PlayableLogic {
     }
 
     // All posible directions
-    private static final int[][] DIRECTIONS = { {-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1} };
+    private static final int[][] DIRECTIONS = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
     public int countFlips(Position a) {
         Player currentPlayer = isFirstPlayerTurn ? firstPlayer : secondPlayer;
@@ -117,25 +117,26 @@ public class GameLogic implements PlayableLogic {
         int row = a.row() + direction[0];
         int col = a.col() + direction[1];
         int totalFlips = 0;
-        
+
         // Stop if there's no disc
         while (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE) {
             Disc disc = board[row][col];
             if (disc == null) {
                 return 0;
             }
-            
+
             // Return flips if a disc  of the current player is found
             else if (disc.getOwner() == currentPlayer) {
                 return totalFlips;
             }
             // Count the opponent's disc and continue 
-            else { totalFlips++; 
+            else {
+                totalFlips++;
             }
             row += direction[0];
             col += direction[1];
         }
-        
+
         // No valid flip path in this direction
         return 0;
     }
@@ -152,29 +153,29 @@ public class GameLogic implements PlayableLogic {
         this.firstPlayer = player1;
         this.secondPlayer = player2;
     }
-    private int calculateScore(Player player){
+
+    private int calculateScore(Player player) {
         int score = 0;
-                for (int i = 0; i < BOARD_SIZE; i++) {
-                    for (int j = 0; j < BOARD_SIZE; j++) {
-                        Disc disc = board[i][j];
-                        if (disc != null && disc.getOwner().equals(player)) {
-                            score++;
-                        }
-                    }
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                Disc disc = board[i][j];
+                if (disc != null && disc.getOwner().equals(player)) {
+                    score++;
                 }
-                return score;
+            }
+        }
+        return score;
     }
 
     public boolean isFirstPlayerTurn() {
-        gamePrinter.printGameStatus(firstPlayer, secondPlayer, calculateScore(firstPlayer), calculateScore(secondPlayer), isFirstPlayerTurn);
         return isFirstPlayerTurn;
     }
 
     public boolean isGameFinished() {
-       if (gameFinished) {
-           System.out.println("Game is already finished.");
-           return true;
-       }
+        if (gameFinished) {
+            System.out.println("Game is already finished.");
+            return true;
+        }
         // Check if either play has valid moves
         if (!ValidMoves().isEmpty()) {
             return false;
@@ -191,13 +192,12 @@ public class GameLogic implements PlayableLogic {
             int firstPlayerScore = calculateScore(firstPlayer);
             int secondPlayerScore = calculateScore(secondPlayer);
 
-            gamePrinter.printGameOver(firstPlayerScore, secondPlayerScore);
             return true;
         }
 
         return false; //Game is finished if neither play has valid moves
 
-        
+
     }
 
     public void reset() {
@@ -207,18 +207,14 @@ public class GameLogic implements PlayableLogic {
             }
         }
 
-            board[3][3] = new SimpleDisc(firstPlayer);
-            board[4][4] = new SimpleDisc(firstPlayer);
-            board[3][4] = new SimpleDisc(secondPlayer);
-            board[4][3] = new SimpleDisc(secondPlayer);
+        board[3][3] = new SimpleDisc(firstPlayer);
+        board[4][4] = new SimpleDisc(firstPlayer);
+        board[3][4] = new SimpleDisc(secondPlayer);
+        board[4][3] = new SimpleDisc(secondPlayer);
 
-            isFirstPlayerTurn = true;
-            moveHistory.clear();
-            gameFinished = false;
-
-            gamePrinter.printGameStart(BOARD_SIZE, firstPlayer, secondPlayer);
-            gamePrinter.printBoard(board); // Print the intial game board
-
+        isFirstPlayerTurn = true;
+        moveHistory.clear();
+        gameFinished = false;
     }
 
     public void undoLastMove() {
@@ -227,7 +223,7 @@ public class GameLogic implements PlayableLogic {
             return; // No moves to undo
 
         }
-        Move lastMove = moveHistory.remove(moveHistory.size() -1);
+        Move lastMove = moveHistory.remove(moveHistory.size() - 1);
 
         //Retrieve and remove the last move
         Position pos = lastMove.position();
@@ -242,9 +238,5 @@ public class GameLogic implements PlayableLogic {
 
         // Switch the turn back
         isFirstPlayerTurn = !isFirstPlayerTurn;
-
-        gamePrinter.printUndoMessage(isFirstPlayerTurn ? firstPlayer : secondPlayer);
-        gamePrinter.printBoard(board);
-
     }
 }
