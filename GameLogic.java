@@ -11,7 +11,6 @@ public class GameLogic implements PlayableLogic {
     private final Disc[][] board = new Disc[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
 
-    //asd
 
     public boolean locate_disc(Position a, Disc disc) {
         if (gameFinished) {
