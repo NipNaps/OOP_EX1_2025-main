@@ -12,6 +12,8 @@ public class UnflippableDisc implements Disc{
 
     public void setOwner(Player player) {
         this.player = player;
+        // Unflippable discs cannot change ownership
+        throw new UnsupportedOperationException("Unflippable discs cannot be flipped.");
     }
 
     public String getType() {
