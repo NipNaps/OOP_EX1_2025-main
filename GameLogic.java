@@ -11,6 +11,7 @@ public class GameLogic implements PlayableLogic {
     private final Disc[][] board = new Disc[BOARD_SIZE][BOARD_SIZE];
     private final List<Move> moveHistory = new ArrayList<>();
 
+    //asd
 
     public boolean locate_disc(Position a, Disc disc) {
         if (gameFinished) {
@@ -172,32 +173,7 @@ public class GameLogic implements PlayableLogic {
     }
 
     public boolean isGameFinished() {
-        if (gameFinished) {
-            System.out.println("Game is already finished.");
-            return true;
-        }
-        // Check if either play has valid moves
-        if (!ValidMoves().isEmpty()) {
-            return false;
-        }
-
-        // Switch turn to the other player and check for valid moves
-        isFirstPlayerTurn = !isFirstPlayerTurn;
-        boolean otherPlayHasMoves = !ValidMoves().isEmpty();
-        isFirstPlayerTurn = !isFirstPlayerTurn; // Switch back to the original player
-
-        if (!otherPlayHasMoves) {
-            gameFinished = true;
-
-            int firstPlayerScore = calculateScore(firstPlayer);
-            int secondPlayerScore = calculateScore(secondPlayer);
-
-            return true;
-        }
-
-        return false; //Game is finished if neither play has valid moves
-
-
+        return ValidMoves().isEmpty();
     }
 
     public void reset() {
